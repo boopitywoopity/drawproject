@@ -6,11 +6,14 @@ from pygame_widgets.slider import Slider
 from pygame_widgets.textbox import TextBox
 from pygame import *
 import time 
+from math import sqrt
+
 #this code is a mess jesus
 pg.init()
-win = pg.display.set_mode((0,0),pg.FULLSCREEN)
+win = pg.display.set_mode((1540,750))
+pg.display.set_caption("boopybrush")
 circles = []
-#the next lines make me want to kill myself
+#the next lines make me want to kill myself and is convoluted as fuck
 red = Slider(win,100,40,600,10, min=0,max =255,step=1,colour=(255,0,0))
 green = Slider(win,100,60,600,10,min=0,max=255,step=1,colour=(0,255,0))
 blue = Slider(win,100,80,600,10,min=0,max=255,step=1,colour=(0,0,255))
@@ -25,7 +28,7 @@ filebox.disable()
 savebox.disable()
 openbox.disable()
 txtbox.disable()
-txtbox.setText("hide")
+txtbox.setText("slider")
 filebox.setText("file")
 savebox.setText("save")
 openbox.setText("open")
@@ -33,64 +36,16 @@ openbox.setText("open")
 
 
 
-#hides the sliders or shows them
-def openfile(filename):
-    #file = open(f"C:\\Users\\antoi\\OneDrive\\Bureau\\Programming\\fun\\pygame\\drawfilefolder\\{filename}.txt","r")
-    file = open(f"{filename}.txt","r")
-    circle =[]
-    for i in file:
-        a = i.split()
-        b = list(map(float,a))     
-        circle.append(b)
-    file.close()
-    return(circle)
 
 
 
-def save(filename):
-    #file = open(f"C:\\Users\\antoi\\OneDrive\\Bureau\\Programming\\fun\\pygame\\drawfilefolder\\{filename}.txt","a+")
-    file = open(f"{filename}.txt","a+")
-    file.truncate(0)
-    for i in circles:
-        file.write(f"{i[0]} {i[1]} {i[2]} {i[3]} {i[4]} {i[5]} \n")
-    file.close
-
-
-
-
-def showhide(): 
-    if showcol == False:
-        red.hide()
-        blue.hide()
-        green.hide()
-        size.hide()
-    else:
-        red.show()
-        blue.show()
-        green.show()
-        size.show()
-    if showsavebutton==False:
-        savebox.hide()
-        openbox.hide()
-        txtboxfilename.hide()
-    if showsavebutton ==True:
-        savebox.show()
-        openbox.show()
-        txtboxfilename.show()
-showcol = True
-showsavebutton = False
 
 
 
 #this function gets the values of all the sliders 
-def colour():
-    s = size.getValue()
-    rvalue= red.getValue()
-    gvalue=green.getValue()
-    bvalue=blue.getValue()
-    pg.draw.circle(win,(rvalue,gvalue,bvalue),(850,50),s)
-    rgb.setText((rvalue,gvalue,bvalue))
-    return(rvalue,gvalue,bvalue,s)
+
+
+
 
 
 
@@ -119,21 +74,109 @@ r5 =0
 g5 = 0
 b5 =0
 
+
+mode = "draw"
+#yeah I'm noting these down cus I wont fucking remember what any of these rectangles do lol
+erasemode = Rect(1405,20,40,40)
+drawmode = Rect(1480, 20,40,40)
 hot1 = Rect(905,10,20,20)
 hot2 = Rect(1000,10,20,20)
 hot3 = Rect(1100,10,20,20)
 hot4 = Rect(1200,10,20,20)
 hot5 = Rect(1300,10,20,20)
+#button to togle on eraser
+pg.draw.rect(win,(232,160,152),erasemode)
+#button to toggle on pen
+pg.draw.rect(win,(0,0,0),drawmode)
+#puts a black background on the first hotkey cus you cant see it otherwise... might be smarter to change the default hotkey to another colour than white...
 pg.draw.rect(win,(0,0,0),(900,5,30,30))
+#first hotkey
 pg.draw.rect(win,(r1,g1,b1),hot1)
+#second hotkey
 pg.draw.rect(win,(r2,g2,b2),hot2)
+#third hotkey
 pg.draw.rect(win,(r3,g3,b3),hot3)
+#fourth hotkey
 pg.draw.rect(win,(r4,g4,b4),hot4)
+#fifth hotkey
 pg.draw.rect(win,(r5,g5,b5),hot5)
 hidebutton = Rect(205,0,50,30)
 filebutton = Rect(0,0,50,30)
 openb = Rect(0,60,50,30)
 saveb = Rect(0,30,50,30)
+
+#hides the sliders or shows them
+def openfile(filename):
+    #file = open(f"C:\\Users\\antoi\\OneDrive\\Bureau\\Programming\\fun\\pygame\\drawfilefolder\\{filename}.txt","r")
+    file = open(f"{filename}.txt","r")
+    circle =[]
+    for i in file:
+        a = i.split()
+        b = list(map(float,a))     
+        circle.append(b)
+    file.close()
+    return(circle)
+
+
+
+def save(filename):
+    #file = open(f"C:\\Users\\antoi\\OneDrive\\Bureau\\Programming\\fun\\pygame\\drawfilefolder\\{filename}.txt","a+")
+    file = open(f"{filename}.txt","a+")
+    file.truncate(0)
+    for i in circles:
+        file.write(f"{i[0]} {i[1]} {i[2]} {i[3]} {i[4]} {i[5]} \n")
+    file.close
+
+
+#the eraser is janky as fuck and barely works
+#needs to be fixed...
+def erase():
+    
+    for circle in circles:
+        if mx < circle[0]:
+            distance = sqrt((circle[0]-mx)**2+(circle[1]-my)**2)
+            print(distance)
+        if mx == circle[0]:
+            distance = s+circle[2]
+        if mx > circle[0]:
+            distance = sqrt((mx-circle[0])**2+(my-circle[1])**2)
+        if distance <= circle[2]:
+            circles.remove(circle)
+    pg.draw.rect(win,(255,255,255),(0,140,1540,610))
+    for i in circles:
+        pg.draw.circle(win,(i[3],i[4],i[5]),(i[0],i[1]),i[2])
+#this is aids but I'm too lazy to fix it...
+def showhide(): 
+    if showcol == False:
+        red.hide()
+        blue.hide()
+        green.hide()
+        size.hide()
+    else:
+        red.show()
+        blue.show()
+        green.show()
+        size.show()
+    if showsavebutton==False:
+        savebox.hide()
+        openbox.hide()
+        txtboxfilename.hide()
+    if showsavebutton ==True:
+        savebox.show()
+        openbox.show()
+        txtboxfilename.show()
+showcol = True
+showsavebutton = False
+
+
+def colour():
+    s = size.getValue()
+    rvalue= red.getValue()
+    gvalue=green.getValue()
+    bvalue=blue.getValue()
+    pg.draw.circle(win,(rvalue,gvalue,bvalue),(850,50),s)
+    rgb.setText((rvalue,gvalue,bvalue))
+    return(rvalue,gvalue,bvalue,s)
 
 
 while True:
@@ -152,25 +195,28 @@ while True:
     r,g,b,s=colour()
     k = pg.key.get_pressed()
     if pg.mouse.get_pressed()[0] and my>140 and [mx,my,s,r,g,b] not in circles:
-        if k[pg.K_z]:
-            circles.append([mx,my,s,r1,g1,b1])
-            pg.draw.circle(win,(r1,g1,b1),(mx,my),s)
-        elif k[pg.K_x]:
-            circles.append([mx,my,s,r2,g2,b2])
-            pg.draw.circle(win,(r2,g2,b2),(mx,my),s)
-        elif k[pg.K_c]:
-            circles.append([mx,my,s,r3,g3,b3])
-            pg.draw.circle(win,(r3,g3,b3),(mx,my),s)
-        elif k[pg.K_v]:
-            circles.append([mx,my,s,r4,g4,b4])
-            pg.draw.circle(win,(r4,g4,b4),(mx,my),s)
-        elif k[pg.K_b]:
-            circles.append([mx,my,s,r5,g5,b5])
-            pg.draw.circle(win,(r5,g5,b5),(mx,my),s)
-        else:
-            pg.draw.circle(win,(r,g,b),(mx,my),s)
-            circles.append([mx,my,s,r,g,b])
-
+        if mode =="draw":
+            if k[pg.K_z]:
+                circles.append([mx,my,s,r1,g1,b1])
+                pg.draw.circle(win,(r1,g1,b1),(mx,my),s)
+            elif k[pg.K_x]:
+                circles.append([mx,my,s,r2,g2,b2])
+                pg.draw.circle(win,(r2,g2,b2),(mx,my),s)
+            elif k[pg.K_c]:
+                circles.append([mx,my,s,r3,g3,b3])
+                pg.draw.circle(win,(r3,g3,b3),(mx,my),s)
+            elif k[pg.K_v]:
+                circles.append([mx,my,s,r4,g4,b4])
+                pg.draw.circle(win,(r4,g4,b4),(mx,my),s)
+            elif k[pg.K_b]:
+                circles.append([mx,my,s,r5,g5,b5])
+                pg.draw.circle(win,(r5,g5,b5),(mx,my),s)
+            else:
+                pg.draw.circle(win,(r,g,b),(mx,my),s)
+                circles.append([mx,my,s,r,g,b])
+        if mode =="erase":
+            erase()
+            continue
 
 
 
@@ -179,7 +225,7 @@ while True:
         if event.type == pg.QUIT:
             quit()
             break
-
+        
         if event.type== pg.KEYDOWN:
             if event.key == pg.K_BACKSPACE:
                 try:
@@ -190,12 +236,14 @@ while True:
 
 
 
-
         if event.type== pg.MOUSEBUTTONUP:
 
             #sets an invisible click to use to check collisions
             click = Rect(mx,my,1,1)
-
+            if pg.Rect.colliderect(click,drawmode):
+                mode = "draw"
+            if pg.Rect.colliderect(click,erasemode):
+                mode = "erase"
             if pg.Rect.colliderect(click,hot1):
                 r1= r
                 g1 =g 
