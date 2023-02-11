@@ -8,4 +8,3 @@ from pygame import *
 import time 
 this uses pygame, pygame_widgets the time module asyncio and the math module 
 this only works on python 3.10 since pygame doesnt work in 3.11
-pop
